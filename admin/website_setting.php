@@ -2,7 +2,9 @@
 include 'koneksi.php';
 session_start();
 //aksi untuk tambah
+
 $querySetting = mysqli_query($koneksi, "SELECT * FROM general_setting ORDER BY id DESC");
+$rowSetting = mysqli_fetch_assoc($querySetting);
 if (isset($_POST['simpan'])) {
     $website_name    = $_POST['website_name'];
     $website_link    = $_POST['website_link'];
@@ -26,8 +28,10 @@ if (isset($_POST['simpan'])) {
                 echo "Gunakan Foto Lain";
                 die;
             } else {
+                //unlink (otomatis menghapus foto saat foto baru diupload)
+                unlink('upload/' . $rowSetting['logo']);
                 move_uploaded_file($_FILES['logo']['tmp_name'], 'upload/' . $logo);  //memindahkan foto ke folder upload
-                $update = mysqli_query($koneksi, "UPDATE general_setting SET website_name='$website_name', website_link='$website_link', website_phone='$website_phone', website_email='$website_email', website_address='$website_address' logo='$logo' WHERE id = '$id'");
+                $update = mysqli_query($koneksi, "UPDATE general_setting SET website_name='$website_name', website_link='$website_link', website_phone='$website_phone', website_email='$website_email', website_address='$website_address', logo='$logo' WHERE id = '$id'");
             }
         } else {
             // sql = structur query languages / DML = data manipulation language
@@ -59,7 +63,6 @@ if (isset($_POST['simpan'])) {
     header("location:website_setting.php?tambah=berhasil");
 }
 
-$rowSetting = mysqli_fetch_assoc($querySetting);
 
 //aksi untuk edit
 $id = isset($_GET['edit']) ? $_GET['edit'] : '';
@@ -187,7 +190,7 @@ if (isset($_POST['edit'])) {
                                                     <label for="" class="col-form-label">Upload Photo</label>
                                                     <div class="input-group input-group-merge">
                                                         <img
-                                                            src="<?php echo isset($rowSetting['logo']) ? $rowSetting['logo'] : '' ?>"
+                                                            src="upload/<?php echo isset($rowSetting['logo']) ? $rowSetting['logo'] : '' ?>"
                                                             alt="user-avatar"
                                                             class="d-block rounded"
                                                             height="100"
